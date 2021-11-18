@@ -1,0 +1,18 @@
+[package]
+name = "tantivy_dart_bindings"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "tantivy_dart"
+crate-type = ["cdylib"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flutter_rust_bridge = "1.6"
+anyhow = "1.0.44"
+tantivy = "0.16.1"
+log = "0.4.14"
+ffi_helpers = "0.3.0"
+once_cell = "1.5.2"

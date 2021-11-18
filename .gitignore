@@ -1,0 +1,9 @@
+/tantivy_dart/.dart_tool/*
+/tantivy_dart/.idea/*
+/tantivy_dart/.vscode/*
+tantivy_dart/build/*
+/tantivy_dart/lib/libtantivy_dart.so
+
+/tantivy_rust_bindings/.vscode/*
+tantivy_rust_bindings/target/*
+tantivy_rust_bindings/Cargo.lock
