@@ -8,8 +8,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import "generated_bindings.dart" as tantivy;
 
 part "tantivy_dart.freezed.dart";
-part "books_example.dart";
 part "schema.dart";
+part "index.dart";
 
 /// Singleton access point for the library should be initiated to load de
 /// dynamic library with the tantivy implementation.

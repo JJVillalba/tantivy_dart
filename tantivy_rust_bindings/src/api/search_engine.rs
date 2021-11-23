@@ -33,6 +33,7 @@ impl SearchEngine {
         }
     }
 
+
     pub fn add_to_writer(&mut self, document: Document) -> Result<()> {
         let writer = self.writer.borrow_mut().as_mut().unwrap();
         writer.add_document(document);

@@ -1,19 +1,20 @@
 mod search_engine;
 
-use std::{borrow::Cow, collections::BTreeMap, sync::Mutex};
+use std::{collections::BTreeMap, sync::Mutex};
 
 use anyhow::Result;
 
-use tantivy::schema::{self, IndexRecordOption, TEXT, TextFieldIndexing};
+use tantivy::schema::{self, IndexRecordOption, TextFieldIndexing};
 
 use search_engine::{SearchEngine, SEARCH_ENGINES_MAP};
 
+/// Dummy function to test the tantivy binding.
 pub fn binding_test(string: String) -> Result<String> {
     if string == "ping" {
         return Ok("pong".to_string());
     }
 
-    Ok("You should have say ping".to_string())
+    Ok("You should had say ping :/".to_string())
 }
 
 pub struct SchemaField {
@@ -24,7 +25,38 @@ pub struct SchemaField {
     pub is_stored: bool,
 }
 
+impl SchemaField {
+    fn to_text_field_options(&self) -> schema::TextOptions {
+        let mut field_options = schema::TextOptions::default();
 
+        if self.is_stored {
+            field_options = field_options.set_stored();
+        }
+
+        if self.index_record_option != "none" {
+            let index_option = match self.index_record_option.as_str() {
+                "withFreqs" => IndexRecordOption::WithFreqs,
+                "withFreqsAndPositions" => IndexRecordOption::WithFreqsAndPositions,
+                "basic" | _ => IndexRecordOption::Basic,
+            };
+
+            field_options = field_options
+                .set_indexing_options(TextFieldIndexing::default().set_index_option(index_option));
+        }
+
+        field_options
+    }
+
+    fn to_int_options(&self) -> schema::IntOptions {
+        let mut field_options = schema::IntOptions::default();
+
+        if self.is_stored {
+            field_options = field_options.set_stored();
+        }
+
+        field_options
+    }
+}
 
 pub struct Schema {
     pub path: String,
@@ -32,34 +64,16 @@ pub struct Schema {
     pub fields: Vec<SchemaField>,
 }
 
-
-
 impl Schema {
     fn build(&self) -> schema::Schema {
         let mut builder = schema::SchemaBuilder::new();
         for field in &self.fields {
             match field.field_type.as_str() {
-                "text" => {
-                    // let field_options = schema::TextOptions::default();
-                    builder.add_text_field(&field.name, TEXT);
-                }
-                "i64" => {
-                    let field_options = schema::IntOptions::default();
-                    builder.add_i64_field(&field.name, field_options);
-                }
-                "f64" => {
-                    let field_options = schema::IntOptions::default();
-                    builder.add_f64_field(&field.name, field_options);
-                }
-                "bytes" => {
-                    let field_options = schema::BytesOptions::default();
-                    builder.add_bytes_field(&field.name, field_options);
-                }
-                "facet" => {
-                    let field_options = schema::FacetOptions::default();
-                    builder.add_facet_field(&field.name, field_options);
-                }
-                _ => {}
+                "i64" => builder.add_i64_field(&field.name, field.to_int_options()),
+                "f64" => builder.add_f64_field(&field.name, field.to_int_options()),
+                "bytes" => builder.add_bytes_field(&field.name, schema::BytesOptions::default()),
+                "facet" => builder.add_facet_field(&field.name, schema::FacetOptions::default()),
+                "text" | _ => builder.add_text_field(&field.name, field.to_text_field_options()),
             };
         }
 
@@ -71,6 +85,14 @@ pub fn set_up() -> Result<String> {
     SEARCH_ENGINES_MAP.get_or_init(|| Mutex::new(BTreeMap::new()));
 
     Ok("ok".to_string())
+}
+
+pub fn close_search_engine(name: String) -> Result<String> {
+    let mut engines_map = SEARCH_ENGINES_MAP.get().unwrap().lock().unwrap();
+
+    engines_map.remove(&name);
+
+    Ok("lorem".to_string())
 }
 
 pub fn open_or_create_index(schema: Schema) -> Result<String> {
@@ -90,7 +112,7 @@ pub fn open_or_create_index(schema: Schema) -> Result<String> {
     let reader = index_ref.reader().unwrap();
     engines_map.insert(
         schema.name,
-        SearchEngine::new( index.unwrap(), writer, reader),
+        SearchEngine::new(index.unwrap(), writer, reader),
     );
 
     Ok("Engine Open".to_string())

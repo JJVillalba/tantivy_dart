@@ -40,6 +40,21 @@ pub extern "C" fn wire_set_up(port: i64) {
 }
 
 #[no_mangle]
+pub extern "C" fn wire_close_search_engine(port: i64, name: *mut wire_uint_8_list) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "close_search_engine",
+            port: Some(port),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_name = name.wire2api();
+            move |task_callback| close_search_engine(api_name)
+        },
+    )
+}
+
+#[no_mangle]
 pub extern "C" fn wire_open_or_create_index(port: i64, schema: *mut wire_Schema) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {

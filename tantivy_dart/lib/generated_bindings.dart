@@ -19,6 +19,8 @@ abstract class TantivyDartBindings
 
   Future<String> setUp({dynamic hint});
 
+  Future<String> closeSearchEngine({required String name, dynamic hint});
+
   Future<String> openOrCreateIndex({required Schema schema, dynamic hint});
 
   Future<String> indexDocuments(
@@ -141,6 +143,14 @@ class TantivyDartBindingsImpl extends TantivyDartBindings {
       callFfi: (port) => inner.wire_set_up(port),
       parseSuccessData: _wire2api_String,
       hint: hint));
+
+  Future<String> closeSearchEngine({required String name, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+          debugName: 'close_search_engine',
+          callFfi: (port) =>
+              inner.wire_close_search_engine(port, _api2wire_String(name)),
+          parseSuccessData: _wire2api_String,
+          hint: hint));
 
   Future<String> openOrCreateIndex({required Schema schema, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
@@ -306,7 +316,7 @@ class TantivyDartBindingsImpl extends TantivyDartBindings {
     wireObj.field_type = _api2wire_String(apiObj.fieldType);
     wireObj.index_record_option = _api2wire_String(apiObj.indexRecordOption);
     wireObj.tokenizer_name = _api2wire_String(apiObj.tokenizerName);
-    wireObj.is_stored = _api2wire_bool(apiObj.isStored) ? 1 : 0;
+    wireObj.is_stored = _api2wire_bool(apiObj.isStored);
   }
 
   void _api_fill_to_wire_search_query(
@@ -398,6 +408,23 @@ class TantivyDartBindingsWire implements FlutterRustBridgeWireBase {
   late final _wire_set_upPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>('wire_set_up');
   late final _wire_set_up = _wire_set_upPtr.asFunction<void Function(int)>();
+
+  void wire_close_search_engine(
+    int port,
+    ffi.Pointer<wire_uint_8_list> name,
+  ) {
+    return _wire_close_search_engine(
+      port,
+      name,
+    );
+  }
+
+  late final _wire_close_search_enginePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64,
+              ffi.Pointer<wire_uint_8_list>)>>('wire_close_search_engine');
+  late final _wire_close_search_engine = _wire_close_search_enginePtr
+      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
 
   void wire_open_or_create_index(
     int port,
